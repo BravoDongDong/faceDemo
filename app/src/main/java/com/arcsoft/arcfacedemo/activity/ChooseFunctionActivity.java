@@ -54,6 +54,7 @@ public class ChooseFunctionActivity extends AppCompatActivity {
         RadioButton rbOrient180 = findViewById(R.id.rb_orient_180);
         RadioButton rbOrient270 = findViewById(R.id.rb_orient_270);
         RadioButton rbOrientAll = findViewById(R.id.rb_orient_all);
+
         switch (ConfigUtil.getFtOrient(this)) {
             case FaceEngine.ASF_OP_0_ONLY:
                 rbOrient0.setChecked(true);
