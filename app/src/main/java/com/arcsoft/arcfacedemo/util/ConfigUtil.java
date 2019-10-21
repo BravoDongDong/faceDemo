@@ -39,7 +39,7 @@ public class ConfigUtil {
 
     public static int getFtOrient(Context context){
         if (context == null){
-            return FaceEngine.ASF_OP_270_ONLY;
+            return FaceEngine.ASF_OP_0_HIGHER_EXT;
         }
         SharedPreferences sharedPreferences = context.getSharedPreferences(APP_NAME,Context.MODE_PRIVATE);
         return sharedPreferences.getInt(FT_ORIENT, FaceEngine.ASF_OP_270_ONLY);

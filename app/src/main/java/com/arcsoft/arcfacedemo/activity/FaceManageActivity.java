@@ -5,6 +5,8 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -25,6 +27,7 @@ import com.arcsoft.face.util.ImageUtils;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -34,8 +37,8 @@ import java.util.concurrent.Executors;
 public class FaceManageActivity extends AppCompatActivity {
     //注册图所在的目录
     private static final String ROOT_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "arcfacedemo";
-    private static final String REGISTER_DIR = ROOT_DIR + File.separator + "register";
-    private static final String REGISTER_FAILED_DIR = ROOT_DIR + File.separator + "failed";
+    public static final String REGISTER_DIR = ROOT_DIR + File.separator + "register";
+    public static final String REGISTER_FAILED_DIR = ROOT_DIR + File.separator + "failed";
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private TextView tvNotificationRegisterResult;
@@ -55,6 +58,9 @@ public class FaceManageActivity extends AppCompatActivity {
         tvNotificationRegisterResult = findViewById(R.id.notification_register_result);
         progressDialog = new ProgressDialog(this);
         FaceServer.getInstance().init(this);
+        //创建存放人脸图片路径目录，初始化时完成！！！
+        new File(REGISTER_DIR).mkdirs();
+        new File(REGISTER_FAILED_DIR).mkdirs();
     }
 
     @Override
@@ -110,6 +116,7 @@ public class FaceManageActivity extends AppCompatActivity {
                     }
                 });
                 for (int i = 0; i < totalCount; i++) {
+                    Log.e("test", "start handling jpg");
                     final int finalI = i;
                     runOnUiThread(new Runnable() {
                         @Override
@@ -120,8 +127,16 @@ public class FaceManageActivity extends AppCompatActivity {
                         }
                     });
                     final File jpgFile = jpgFiles[i];
+                    int tangle = readPictureDegree(jpgFile.getPath());
+                    Bitmap resizedBitmap;
                     Bitmap bitmap = BitmapFactory.decodeFile(jpgFile.getAbsolutePath());
-                    if (bitmap == null) {
+                    if (tangle == 0) {
+                        resizedBitmap = bitmap;
+                    } else {
+                        resizedBitmap = rotaingImageView(tangle,bitmap);
+                    }
+
+                    if (resizedBitmap == null) {
                         File failedFile = new File(REGISTER_FAILED_DIR + File.separator + jpgFile.getName());
                         if (!failedFile.getParentFile().exists()) {
                             failedFile.getParentFile().mkdirs();
@@ -129,7 +144,7 @@ public class FaceManageActivity extends AppCompatActivity {
                         jpgFile.renameTo(failedFile);
                         continue;
                     }
-                    bitmap = ImageUtils.alignBitmapForBgr24(bitmap);
+                    bitmap = ImageUtils.alignBitmapForBgr24(resizedBitmap);
                     if (bitmap == null) {
                         File failedFile = new File(REGISTER_FAILED_DIR + File.separator + jpgFile.getName());
                         if (!failedFile.getParentFile().exists()) {
@@ -141,6 +156,7 @@ public class FaceManageActivity extends AppCompatActivity {
                     byte[] bgr24 = ImageUtils.bitmapToBgr24(bitmap);
                     boolean success = FaceServer.getInstance().registerBgr24(FaceManageActivity.this, bgr24, bitmap.getWidth(), bitmap.getHeight(),
                             jpgFile.getName().substring(0, jpgFile.getName().lastIndexOf(".")));
+                    Log.e("test", "stop handling jpg");
                     if (!success) {
                         File failedFile = new File(REGISTER_FAILED_DIR + File.separator + jpgFile.getName());
                         if (!failedFile.getParentFile().exists()) {
@@ -160,7 +176,7 @@ public class FaceManageActivity extends AppCompatActivity {
                                 + "\nfailed images are in directory '" + REGISTER_FAILED_DIR + "'");
                     }
                 });
-                Log.i(FaceManageActivity.class.getSimpleName(), "run: " + executorService.isShutdown());
+                //Log.i(FaceManageActivity.class.getSimpleName(), "run: " + executorService.isShutdown());
             }
         });
     }
@@ -212,4 +228,77 @@ public class FaceManageActivity extends AppCompatActivity {
             dialog.show();
         }
     }
+
+    //获取图片的旋转角度
+    public static int readPictureDegree(String path) {
+        int degree = 0;
+        try {
+            ExifInterface exifInterface = new ExifInterface(path);
+            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    degree = 90;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    degree = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    degree = 270;
+                    break;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return degree;
+    }
+
+
+    /**
+     * 旋转图片
+     *
+     * @param angle
+     * @param bitmap
+     * @return Bitmap
+     */
+    public static Bitmap rotaingImageView(int angle, Bitmap bitmap) {
+        //旋转图片 动作
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        // 创建新的图片
+        Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        return resizedBitmap;
+    }
+
+//    BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+//    bitmapOptions.inSampleSize = 8;
+//    File file = new File(SD_CARD_TEMP_DIR);
+//    /**
+//     * 获取图片的旋转角度，有些系统把拍照的图片旋转了，有的没有旋转
+//     */
+//    int degree = ImageDispose.readPictureDegree(file.getAbsolutePath());
+//    Bitmap cameraBitmap = BitmapFactory.decodeFile(SD_CARD_TEMP_DIR, bitmapOptions);
+//    bitmap = cameraBitmap;
+//    /**
+//     * 把图片旋转为正的方向
+//     */
+//    bitmap = ImageDispose.rotaingImageView(degree, bitmap);
+//    upload(bitmap);
+//    /**
+//     * 旋转图片
+//     * @param angle
+//     * @param bitmap
+//     * @return Bitmap
+//     */
+//    public static Bitmap rotaingImageView(int angle , Bitmap bitmap) {
+//        //旋转图片 动作
+//        Matrix matrix = new Matrix();
+//        ;
+//        matrix.postRotate(angle);
+//        System.out.println("angle2=" + angle);
+//        // 创建新的图片
+//        Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0,
+//                bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+//        return resizedBitmap;
+//    }
+
 }

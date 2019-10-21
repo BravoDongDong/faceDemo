@@ -116,7 +116,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
     private Switch switchLivenessDetect;
 
     private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
-    private static final float SIMILAR_THRESHOLD = 0.8F;
+    private static final float SIMILAR_THRESHOLD = 0.7F;
     /**
      * 所需的所有权限信息
      */
@@ -256,6 +256,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
                     //不做活体检测的情况，直接搜索
                     if (!livenessDetect) {
                         searchFace(faceFeature, requestId);
+
                     }
                     //活体检测通过，搜索特征
                     else if (livenessMap.get(requestId) != null && livenessMap.get(requestId) == LivenessInfo.ALIVE) {
@@ -372,7 +373,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
                 @Override
                 public void subscribe(ObservableEmitter<Boolean> emitter) {
                     boolean success = FaceServer.getInstance().registerNv21(RegisterAndRecognizeActivity.this, nv21.clone(), previewSize.width, previewSize.height,
-                            facePreviewInfoList.get(0).getFaceInfo(), "registered " + faceHelper.getCurrentTrackId());
+                            facePreviewInfoList.get(0).getFaceInfo(), "registered " + 1);
                     emitter.onNext(success);
                 }
             })
@@ -406,15 +407,17 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
     }
 
     private void drawPreviewInfo(List<FacePreviewInfo> facePreviewInfoList) {
+        String name = null;
         List<DrawInfo> drawInfoList = new ArrayList<>();
         for (int i = 0; i < facePreviewInfoList.size(); i++) {
-            String name = faceHelper.getName(facePreviewInfoList.get(i).getTrackId());
+             name = faceHelper.getName(facePreviewInfoList.get(i).getTrackId());
             Integer liveness = livenessMap.get(facePreviewInfoList.get(i).getTrackId());
             drawInfoList.add(new DrawInfo(drawHelper.adjustRect(facePreviewInfoList.get(i).getFaceInfo().getRect()), GenderInfo.UNKNOWN, AgeInfo.UNKNOWN_AGE,
                     liveness == null ? LivenessInfo.UNKNOWN : liveness,
                     name == null ? String.valueOf(facePreviewInfoList.get(i).getTrackId()) : name));
         }
         drawHelper.draw(faceRectView, drawInfoList);
+        //Log.e("test","drawPreviewInfo" +  name);
     }
 
     @Override
@@ -475,6 +478,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
     }
 
     private void searchFace(final FaceFeature frFace, final Integer requestId) {
+        //Log.e("test","searchFace" + requestId);
         Observable
                 .create(new ObservableOnSubscribe<CompareResult>() {
                     @Override
@@ -507,6 +511,8 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
 
 //                        Log.i(TAG, "onNext: fr search get result  = " + System.currentTimeMillis() + " trackId = " + requestId + "  similar = " + compareResult.getSimilar());
                         if (compareResult.getSimilar() > SIMILAR_THRESHOLD) {
+                            //比对成功，进行数据库操作
+                            Log.e("test", "searchfacesuccess");
                             boolean isAdded = false;
                             if (compareResultList == null) {
                                 requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
@@ -549,6 +555,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
 
                     }
                 });
+
     }
 
 
