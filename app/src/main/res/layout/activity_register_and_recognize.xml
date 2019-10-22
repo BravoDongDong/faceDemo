@@ -19,7 +19,18 @@
            android:layout_height="match_parent" />
    </FrameLayout>
 
+    <com.don.pieviewlibrary.PercentPieView
+
+        android:id="@+id/pieView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <com.don.pieviewlibrary.AnimationPercentPieView
+        android:visibility="gone"
+        android:id="@+id/pieView3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
     <Switch
+        android:visibility="gone"
         android:id="@+id/switch_liveness_detect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -28,12 +39,20 @@
         android:text="@string/liveness_detect" />
 
     <Button
+        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="20dp"
         android:onClick="register"
         android:text="@string/register" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="20dp"
+        android:onClick="jumpToAdmin"
+        android:text="@string/admin" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view_person"

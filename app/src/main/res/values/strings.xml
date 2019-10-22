@@ -33,6 +33,7 @@
     <string name="confirm_delete">确认删除这%d张图片及人脸特征？</string>
     <string name="ok">确认</string>
     <string name="cancel">取消</string>
+    <string name="sure">确定</string>
     <string name="ft_op_0">视频模式仅检测0度</string>
     <string name="ft_op_90">视频模式仅检测90度</string>
     <string name="ft_op_180">视频模式仅检测180度</string>
@@ -43,4 +44,7 @@
     <string name="camera_error_notice">\n可能的原因：该设备不支持同时打开两个摄像头</string>
     <string name="draw_ir_rect_mirror_horizontal">IR人脸框水平镜像绘制</string>
     <string name="draw_ir_rect_mirror_vertical">IR人脸框垂直镜像绘制</string>
+    <string name="admin">管理员</string>
+    <string name="password">密码</string>
+
 </resources>

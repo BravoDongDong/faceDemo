@@ -1,6 +1,9 @@
 package com.arcsoft.arcfacedemo.activity;
 
 import android.Manifest;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
@@ -11,16 +14,19 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -45,6 +51,9 @@ import com.arcsoft.face.FaceFeature;
 import com.arcsoft.face.GenderInfo;
 import com.arcsoft.face.LivenessInfo;
 import com.arcsoft.face.VersionInfo;
+import com.don.pieviewlibrary.AnimationPercentPieView;
+import com.don.pieviewlibrary.LinePieView;
+import com.don.pieviewlibrary.PercentPieView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -112,6 +121,11 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
      * 绘制人脸框的控件
      */
     private FaceRectView faceRectView;
+    /**
+     * 饼图
+     */
+    private AnimationPercentPieView pieView;
+    private PercentPieView pieView1;
 
     private Switch switchLivenessDetect;
 
@@ -148,6 +162,22 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
     }
 
     private void initView() {
+
+        int[] data = new int[]{20, 20, 20};//用数值计算百分比，总和在饼图中间
+        String[] name = new String[]{"兄", "姐妹", "情侣"};//饼图分类项
+        int[] color = new int[]{//饼图分类项颜色
+                getResources().getColor(R.color.blue),
+                getResources().getColor(R.color.red),
+                getResources().getColor(R.color.purple)};
+
+//        pieView = (AnimationPercentPieView) findViewById(R.id.pieView3);
+//        //设置指定颜色
+//        pieView.setData(data, name, color);
+
+        pieView1 = (PercentPieView) findViewById(R.id.pieView2);
+        //设置指定颜色
+        pieView1.setData(data, name, color);
+
         previewView = findViewById(R.id.texture_preview);
         //在布局结束后才做初始化操作
         previewView.getViewTreeObserver().addOnGlobalLayoutListener(this);
@@ -571,6 +601,46 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
     }
 
     /**
+     * 准备跳转到人脸库
+     *
+     * @param view 跳转按钮
+     */
+    public void jumpToAdmin(View view) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View v = inflater.inflate(R.layout.dialog_pwd,null);
+        final EditText pwd = v.findViewById(R.id.password);
+        builder.setView(v)
+                .setCancelable(true)
+                .setPositiveButton(R.string.sure, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //进行密码比对，成功后跳转到人脸库界面
+                        Toast.makeText(RegisterAndRecognizeActivity.this, pwd.getText(), Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent();
+                        intent.setClass(getApplicationContext(), FaceManageActivity.class);
+                        startActivity(intent);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //Log.e("test","onClick cancel");
+                        int[] data = new int[]{0, 10, 20};//用数值计算百分比，总和在饼图中间
+                        String[] name = new String[]{"弟", "妹", "侣"};//饼图分类项
+                        int[] color = new int[]{//饼图分类项颜色
+                                getResources().getColor(R.color.color_bg_notification),
+                                getResources().getColor(R.color.colorPrimary),
+                                getResources().getColor(R.color.colorPrimaryDark)};
+
+                        pieView1.setData(data, name, color);
+
+                    }
+                }).create();
+        builder.show();
+    }
+
+    /**
      * 在{@link #previewView}第一次布局完成后，去除该监听，并且进行引擎和相机的初始化
      */
     @Override
@@ -583,4 +653,10 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
             initCamera();
         }
     }
+
+
+
+
+
+
 }

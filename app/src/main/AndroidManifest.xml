@@ -19,7 +19,7 @@
             android:name=".activity.PreviewActivity"
             android:launchMode="singleTop" />
         <activity
-            android:name=".activity.ChooseFunctionActivity"
+            android:name=".activity.RegisterAndRecognizeActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,7 +42,7 @@
             android:launchMode="singleTop" />
 
         <activity
-            android:name=".activity.RegisterAndRecognizeActivity"
+            android:name=".activity.ChooseFunctionActivity"
             android:launchMode="singleTop" />
 
         <activity
