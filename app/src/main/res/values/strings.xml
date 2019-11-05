@@ -44,7 +44,7 @@
     <string name="camera_error_notice">\n可能的原因：该设备不支持同时打开两个摄像头</string>
     <string name="draw_ir_rect_mirror_horizontal">IR人脸框水平镜像绘制</string>
     <string name="draw_ir_rect_mirror_vertical">IR人脸框垂直镜像绘制</string>
-    <string name="admin">管理员</string>
+    <string name="Face_Database">人脸库</string>
     <string name="password">密码</string>
 
 </resources>

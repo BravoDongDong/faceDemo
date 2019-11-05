@@ -128,15 +128,14 @@ public class FaceManageActivity extends AppCompatActivity {
                     });
                     final File jpgFile = jpgFiles[i];
                     int tangle = readPictureDegree(jpgFile.getPath());
-                    Bitmap resizedBitmap;
                     Bitmap bitmap = BitmapFactory.decodeFile(jpgFile.getAbsolutePath());
                     if (tangle == 0) {
-                        resizedBitmap = bitmap;
+
                     } else {
-                        resizedBitmap = rotaingImageView(tangle,bitmap);
+                        bitmap = rotaingImageView(tangle,bitmap);
                     }
 
-                    if (resizedBitmap == null) {
+                    if (bitmap == null) {
                         File failedFile = new File(REGISTER_FAILED_DIR + File.separator + jpgFile.getName());
                         if (!failedFile.getParentFile().exists()) {
                             failedFile.getParentFile().mkdirs();
@@ -144,7 +143,7 @@ public class FaceManageActivity extends AppCompatActivity {
                         jpgFile.renameTo(failedFile);
                         continue;
                     }
-                    bitmap = ImageUtils.alignBitmapForBgr24(resizedBitmap);
+                    bitmap = ImageUtils.alignBitmapForBgr24(bitmap);
                     if (bitmap == null) {
                         File failedFile = new File(REGISTER_FAILED_DIR + File.separator + jpgFile.getName());
                         if (!failedFile.getParentFile().exists()) {

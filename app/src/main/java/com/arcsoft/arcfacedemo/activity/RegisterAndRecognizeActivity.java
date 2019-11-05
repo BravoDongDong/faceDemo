@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
@@ -31,6 +32,7 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import com.arcsoft.arcfacedemo.R;
+import com.arcsoft.arcfacedemo.common.Constants;
 import com.arcsoft.arcfacedemo.faceserver.CompareResult;
 import com.arcsoft.arcfacedemo.faceserver.FaceServer;
 import com.arcsoft.arcfacedemo.model.DrawInfo;
@@ -44,6 +46,7 @@ import com.arcsoft.arcfacedemo.util.face.FaceListener;
 import com.arcsoft.arcfacedemo.util.face.RequestFeatureStatus;
 import com.arcsoft.arcfacedemo.widget.FaceRectView;
 import com.arcsoft.arcfacedemo.widget.ShowFaceInfoAdapter;
+import com.arcsoft.face.ActiveFileInfo;
 import com.arcsoft.face.AgeInfo;
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
@@ -131,6 +134,19 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
 
     private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
     private static final float SIMILAR_THRESHOLD = 0.7F;
+
+    /**
+     * 保存考勤信息以便上传
+     */
+
+    private SharedPreferences attendancePreferences;
+
+    /**
+     * 考勤信息
+     */
+    private List<String> userId = new ArrayList<String>;
+    private List<String> status = new ArrayList<String>;
+
     /**
      * 所需的所有权限信息
      */
@@ -139,6 +155,8 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
             Manifest.permission.READ_PHONE_STATE
 
     };
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -459,6 +477,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
                 isAllGranted &= (grantResult == PackageManager.PERMISSION_GRANTED);
             }
             if (isAllGranted) {
+//                activeEngine();
                 initEngine();
                 initCamera();
                 if (cameraHelper != null) {
@@ -569,6 +588,9 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
                             requestFeatureStatusMap.put(requestId, RequestFeatureStatus.SUCCEED);
                             faceHelper.addName(requestId, compareResult.getUserName());
 
+                            //在这里保存考勤人以及时间等信息
+
+
                         } else {
                             requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
                             faceHelper.addName(requestId, "VISITOR " + requestId);
@@ -629,9 +651,9 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
                         int[] data = new int[]{0, 10, 20};//用数值计算百分比，总和在饼图中间
                         String[] name = new String[]{"弟", "妹", "侣"};//饼图分类项
                         int[] color = new int[]{//饼图分类项颜色
-                                getResources().getColor(R.color.color_bg_notification),
+                                getResources().getColor(R.color.blue),
                                 getResources().getColor(R.color.colorPrimary),
-                                getResources().getColor(R.color.colorPrimaryDark)};
+                                getResources().getColor(R.color.green)};
 
                         pieView1.setData(data, name, color);
 
@@ -654,9 +676,17 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
         }
     }
 
-
-
-
+    // TODO: 19-11-5 每次保存前获取刷新考勤信息getSharedPreferences 判定是否已存在，状态信息，
+    // TODO: 19-11-5  后续单独给出ｇｅｔ方法获取信息发送请求
+    /**
+     * 获取考勤缓存信息
+     */
+    public void getSharedPreferences() {
+        attendancePreferences = getSharedPreferences("attendance", MODE_PRIVATE);
+//        String userId = attendancePreferences.getStringSet("name" );
+//        String status = attendancePreferences.getStringSet();
+//        userId
+    }
 
 
 }

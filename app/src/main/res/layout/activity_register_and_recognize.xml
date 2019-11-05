@@ -52,7 +52,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="20dp"
         android:onClick="jumpToAdmin"
-        android:text="@string/admin" />
+        android:text="@string/Face_Database" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view_person"

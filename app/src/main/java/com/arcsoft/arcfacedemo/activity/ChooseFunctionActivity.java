@@ -2,6 +2,7 @@ package com.arcsoft.arcfacedemo.activity;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,6 +11,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -38,6 +40,8 @@ public class ChooseFunctionActivity extends AppCompatActivity {
             Manifest.permission.READ_PHONE_STATE
     };
     private FaceEngine faceEngine = new FaceEngine();
+    private SharedPreferences Countpreferences;
+    private Button activeEngine ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,59 +51,86 @@ public class ChooseFunctionActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        //设置视频模式下的人脸优先检测方向
-        RadioGroup radioGroupFtOrient = findViewById(R.id.radio_group_ft_orient);
-        RadioButton rbOrient0 = findViewById(R.id.rb_orient_0);
-        RadioButton rbOrient90 = findViewById(R.id.rb_orient_90);
-        RadioButton rbOrient180 = findViewById(R.id.rb_orient_180);
-        RadioButton rbOrient270 = findViewById(R.id.rb_orient_270);
-        RadioButton rbOrientAll = findViewById(R.id.rb_orient_all);
 
-        switch (ConfigUtil.getFtOrient(this)) {
-            case FaceEngine.ASF_OP_0_ONLY:
-                rbOrient0.setChecked(true);
-                break;
-            case FaceEngine.ASF_OP_90_ONLY:
-                rbOrient90.setChecked(true);
-                break;
-            case FaceEngine.ASF_OP_180_ONLY:
-                rbOrient180.setChecked(true);
-                break;
-            case FaceEngine.ASF_OP_270_ONLY:
-                rbOrient270.setChecked(true);
-                break;
-            case FaceEngine.ASF_OP_0_HIGHER_EXT:
-                rbOrientAll.setChecked(true);
-                break;
-            default:
-                rbOrient0.setChecked(true);
-                break;
+        Countpreferences = getSharedPreferences("count", MODE_PRIVATE);
+        final int[] count = {Countpreferences.getInt("count", 0)};
+        activeEngine = (Button) findViewById(R.id.activeEngine);
+
+        //判断运行次数，不是初次启动隐藏激活引擎按钮
+        if (count[0] != 0) {
+            activeEngine.setVisibility(View.GONE);
         }
-        radioGroupFtOrient.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+
+        activeEngine.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId) {
-                    case R.id.rb_orient_0:
-                        ConfigUtil.setFtOrient(ChooseFunctionActivity.this, FaceEngine.ASF_OP_0_ONLY);
-                        break;
-                    case R.id.rb_orient_90:
-                        ConfigUtil.setFtOrient(ChooseFunctionActivity.this, FaceEngine.ASF_OP_90_ONLY);
-                        break;
-                    case R.id.rb_orient_180:
-                        ConfigUtil.setFtOrient(ChooseFunctionActivity.this, FaceEngine.ASF_OP_180_ONLY);
-                        break;
-                    case R.id.rb_orient_270:
-                        ConfigUtil.setFtOrient(ChooseFunctionActivity.this, FaceEngine.ASF_OP_270_ONLY);
-                        break;
-                    case R.id.rb_orient_all:
-                        ConfigUtil.setFtOrient(ChooseFunctionActivity.this, FaceEngine.ASF_OP_0_HIGHER_EXT);
-                        break;
-                    default:
-                        ConfigUtil.setFtOrient(ChooseFunctionActivity.this, FaceEngine.ASF_OP_0_ONLY);
-                        break;
+            public void onClick(View view) {
+                //判断程序与第几次运行，如果是第一次运行则激活
+                if (count[0] == 0) {
+                    activeEngine(new View(getApplicationContext()));
+                    activeEngine.setVisibility(View.GONE);
                 }
+                SharedPreferences.Editor editor = Countpreferences.edit();
+                //存入数据
+                editor.putInt("count", ++count[0]);
+                //提交修改
+                editor.commit();
             }
         });
+
+
+        //设置视频模式下的人脸优先检测方向
+//        RadioGroup radioGroupFtOrient = findViewById(R.id.radio_group_ft_orient);
+//        RadioButton rbOrient0 = findViewById(R.id.rb_orient_0);
+//        RadioButton rbOrient90 = findViewById(R.id.rb_orient_90);
+//        RadioButton rbOrient180 = findViewById(R.id.rb_orient_180);
+//        RadioButton rbOrient270 = findViewById(R.id.rb_orient_270);
+//        RadioButton rbOrientAll = findViewById(R.id.rb_orient_all);
+//
+//        switch (ConfigUtil.getFtOrient(this)) {
+//            case FaceEngine.ASF_OP_0_ONLY:
+//                rbOrient0.setChecked(true);
+//                break;
+//            case FaceEngine.ASF_OP_90_ONLY:
+//                rbOrient90.setChecked(true);
+//                break;
+//            case FaceEngine.ASF_OP_180_ONLY:
+//                rbOrient180.setChecked(true);
+//                break;
+//            case FaceEngine.ASF_OP_270_ONLY:
+//                rbOrient270.setChecked(true);
+//                break;
+//            case FaceEngine.ASF_OP_0_HIGHER_EXT:
+//                rbOrientAll.setChecked(true);
+//                break;
+//            default:
+//                rbOrient0.setChecked(true);
+//                break;
+//        }
+//        radioGroupFtOrient.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(RadioGroup group, int checkedId) {
+//                switch (checkedId) {
+//                    case R.id.rb_orient_0:
+//                        ConfigUtil.setFtOrient(ChooseFunctionActivity.this, FaceEngine.ASF_OP_0_ONLY);
+//                        break;
+//                    case R.id.rb_orient_90:
+//                        ConfigUtil.setFtOrient(ChooseFunctionActivity.this, FaceEngine.ASF_OP_90_ONLY);
+//                        break;
+//                    case R.id.rb_orient_180:
+//                        ConfigUtil.setFtOrient(ChooseFunctionActivity.this, FaceEngine.ASF_OP_180_ONLY);
+//                        break;
+//                    case R.id.rb_orient_270:
+//                        ConfigUtil.setFtOrient(ChooseFunctionActivity.this, FaceEngine.ASF_OP_270_ONLY);
+//                        break;
+//                    case R.id.rb_orient_all:
+//                        ConfigUtil.setFtOrient(ChooseFunctionActivity.this, FaceEngine.ASF_OP_0_HIGHER_EXT);
+//                        break;
+//                    default:
+//                        ConfigUtil.setFtOrient(ChooseFunctionActivity.this, FaceEngine.ASF_OP_0_ONLY);
+//                        break;
+//                }
+//            }
+//        });
     }
 
     /**
