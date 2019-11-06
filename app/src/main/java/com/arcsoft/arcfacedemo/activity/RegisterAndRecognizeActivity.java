@@ -37,6 +37,7 @@ import com.arcsoft.arcfacedemo.faceserver.CompareResult;
 import com.arcsoft.arcfacedemo.faceserver.FaceServer;
 import com.arcsoft.arcfacedemo.model.DrawInfo;
 import com.arcsoft.arcfacedemo.model.FacePreviewInfo;
+import com.arcsoft.arcfacedemo.model.attendanceInfo;
 import com.arcsoft.arcfacedemo.util.ConfigUtil;
 import com.arcsoft.arcfacedemo.util.DrawHelper;
 import com.arcsoft.arcfacedemo.util.camera.CameraHelper;
@@ -57,8 +58,12 @@ import com.arcsoft.face.VersionInfo;
 import com.don.pieviewlibrary.AnimationPercentPieView;
 import com.don.pieviewlibrary.LinePieView;
 import com.don.pieviewlibrary.PercentPieView;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -141,11 +146,13 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
 
     private SharedPreferences attendancePreferences;
 
+    private List<attendanceInfo> attendanceInfoArrayList;
+
     /**
      * 考勤信息
      */
-    private List<String> userId = new ArrayList<String>;
-    private List<String> status = new ArrayList<String>;
+    private List<String> userId = new ArrayList<String>();
+    private List<String> status = new ArrayList<String>();
 
     /**
      * 所需的所有权限信息
@@ -682,10 +689,46 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
      * 获取考勤缓存信息
      */
     public void getSharedPreferences() {
+
         attendancePreferences = getSharedPreferences("attendance", MODE_PRIVATE);
-//        String userId = attendancePreferences.getStringSet("name" );
-//        String status = attendancePreferences.getStringSet();
-//        userId
+        String json = attendancePreferences.getString("handleJson", null);
+        if (json != null)
+        {
+            Gson gson = new Gson();
+            Type type = new TypeToken<List<attendanceInfo>>(){}.getType();
+            attendanceInfoArrayList = new ArrayList<attendanceInfo>();
+            attendanceInfoArrayList = gson.fromJson(json, type);
+            for(int i = 0; i < attendanceInfoArrayList.size(); i++)
+            {
+                Log.d(TAG, attendanceInfoArrayList.get(i).getId()+":" + attendanceInfoArrayList.get(i).getFirstTime() + "," + attendanceInfoArrayList.get(i).getSecondTime());
+            }
+        }
+    }
+
+    public void setSharedPreference(String id, Date Time) {
+
+        boolean isAdd = false;
+
+        for(int i = 0; i < attendanceInfoArrayList.size(); i++)
+        {
+            //判断是否已存在该id
+            if (attendanceInfoArrayList.get(i).getId() == id) {
+
+                attendanceInfoArrayList.get(i).setSecondTime(Time);
+                isAdd = true;
+            }
+            if (!isAdd) {
+                attendanceInfo attendanceInfo = new attendanceInfo(id, Time);
+                attendanceInfoArrayList.add(attendanceInfo);
+            }
+        }
+        SharedPreferences.Editor editor = getSharedPreferences("attendance", MODE_PRIVATE).edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(attendanceInfoArrayList);
+        Log.d(TAG, "saved json is "+ json);
+        editor.putString("handleJson", json);
+        editor.commit();
+
     }
 
 
