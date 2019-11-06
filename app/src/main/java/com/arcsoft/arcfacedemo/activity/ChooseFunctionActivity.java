@@ -11,17 +11,32 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.textclassifier.TextLinks;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.arcsoft.arcfacedemo.R;
 import com.arcsoft.arcfacedemo.common.Constants;
+import com.arcsoft.arcfacedemo.model.attendanceInfo;
 import com.arcsoft.arcfacedemo.util.ConfigUtil;
 import com.arcsoft.face.ActiveFileInfo;
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -42,6 +57,12 @@ public class ChooseFunctionActivity extends AppCompatActivity {
     private FaceEngine faceEngine = new FaceEngine();
     private SharedPreferences Countpreferences;
     private Button activeEngine ;
+
+    private String urls = "https://www.baidu.com";
+    /**
+     * 考勤信息list
+     */
+    private List<attendanceInfo> attendanceInfoArrayList = new ArrayList<attendanceInfo>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -245,6 +266,70 @@ public class ChooseFunctionActivity extends AppCompatActivity {
 
                     }
                 });
+
+    }
+
+    /**
+     * 提交
+     *
+     * @param view
+     */
+    public void commit(View view) {
+        attendanceInfoArrayList = RegisterAndRecognizeActivity.getInstance().getAttendanceInfoArrayList(getApplicationContext());
+        if (attendanceInfoArrayList.isEmpty()) {
+            Toast.makeText(this, "没有数据需要上传", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        // TODO: 19-11-6 volley  新开辟线程提交数据给 webapi,并清空shareperence
+
+        JSONObject params = new JSONObject();
+        try {
+            params.put("msg", attendanceInfoArrayList);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, urls, params, new Response.Listener<JSONObject>() {
+
+            @Override
+            public void onResponse(JSONObject response) {
+//                try {
+//                    Log.e(TAG, response.get("msg").toString());
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+                Log.e(TAG, response.toString());
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        }
+
+        );
+
+
+        //TODO: 测试get方式请求baidu,后续移除
+        StringRequest stringRequest = new StringRequest("https://www.baidu.com",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.e("TAG", response);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("TAG", error.getMessage(), error);
+            }
+        });
+
+
+        requestQueue.add(stringRequest);
+
+
+        RegisterAndRecognizeActivity.getInstance().clearShareperference(getApplicationContext());
 
     }
 

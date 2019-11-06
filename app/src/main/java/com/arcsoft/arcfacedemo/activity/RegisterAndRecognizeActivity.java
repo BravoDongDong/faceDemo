@@ -2,6 +2,7 @@ package com.arcsoft.arcfacedemo.activity;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,6 +12,8 @@ import android.graphics.Point;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -37,6 +40,7 @@ import com.arcsoft.arcfacedemo.faceserver.CompareResult;
 import com.arcsoft.arcfacedemo.faceserver.FaceServer;
 import com.arcsoft.arcfacedemo.model.DrawInfo;
 import com.arcsoft.arcfacedemo.model.FacePreviewInfo;
+import com.arcsoft.arcfacedemo.model.attendanceInfo;
 import com.arcsoft.arcfacedemo.util.ConfigUtil;
 import com.arcsoft.arcfacedemo.util.DrawHelper;
 import com.arcsoft.arcfacedemo.util.camera.CameraHelper;
@@ -57,8 +61,12 @@ import com.arcsoft.face.VersionInfo;
 import com.don.pieviewlibrary.AnimationPercentPieView;
 import com.don.pieviewlibrary.LinePieView;
 import com.don.pieviewlibrary.PercentPieView;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -75,6 +83,8 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class RegisterAndRecognizeActivity extends AppCompatActivity implements ViewTreeObserver.OnGlobalLayoutListener {
+
+    private static volatile RegisterAndRecognizeActivity registerAndRecognizeActivity;
     private static final String TAG = "RegisterAndRecognize";
     private static final int MAX_DETECT_NUM = 10;
     /**
@@ -141,6 +151,8 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
 
     private SharedPreferences attendancePreferences;
 
+    private List<attendanceInfo> attendanceInfoArrayList;
+
     /**
      * 考勤信息
      */
@@ -156,7 +168,28 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
 
     };
 
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
 
+            switch ((String)msg.obj) {
+                case "1" :
+                    Bundle bundle = msg.getData();
+                    String id = bundle.getString("id");
+                    getSharedPreferences(getApplicationContext());
+                    setSharedPreference(id, new Date());
+
+            }
+        }
+    };
+
+    public static RegisterAndRecognizeActivity getInstance() {
+        if (registerAndRecognizeActivity == null) {
+            registerAndRecognizeActivity = new RegisterAndRecognizeActivity();
+        }
+        return registerAndRecognizeActivity;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -590,6 +623,14 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
 
                             //在这里保存考勤人以及时间等信息
 
+//                            Message msg = Message.obtain();
+//                            Bundle bundle = new Bundle();
+//                            bundle.putString("id", compareResult.getUserName());
+//                            msg.setData(bundle);
+//                            msg.obj = "1";
+//                            handler.sendMessage(msg);
+                            getSharedPreferences(getApplicationContext());
+                            setSharedPreference(compareResult.getUserName(), new Date());
 
                         } else {
                             requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
@@ -675,18 +716,74 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
             initCamera();
         }
     }
-
     // TODO: 19-11-5 每次保存前获取刷新考勤信息getSharedPreferences 判定是否已存在，状态信息，
     // TODO: 19-11-5  后续单独给出ｇｅｔ方法获取信息发送请求
     /**
      * 获取考勤缓存信息
      */
-    public void getSharedPreferences() {
-        attendancePreferences = getSharedPreferences("attendance", MODE_PRIVATE);
-        String userId = attendancePreferences.getString("name", "1");
-        String status = attendancePreferences.get();
-        userId
+    public void getSharedPreferences(Context context) {
+
+        attendancePreferences = context.getSharedPreferences("attendance", MODE_PRIVATE);
+        String json = attendancePreferences.getString("handleJson", null);
+        if (json != null) {
+            Gson gson = new Gson();
+            Type type = new TypeToken<List<attendanceInfo>>(){}.getType();
+            attendanceInfoArrayList = new ArrayList<attendanceInfo>();
+            attendanceInfoArrayList = gson.fromJson(json, type);
+            for(int i = 0; i < attendanceInfoArrayList.size(); i++)
+            {
+                Log.e(TAG, "getSharepreference" + attendanceInfoArrayList.get(i).getId()+":" + String.valueOf(attendanceInfoArrayList.get(i).getTime()));
+            }
+        } else {
+            attendanceInfoArrayList = new ArrayList<>();
+        }
     }
 
+    public void setSharedPreference(String id, Date Time) {
 
+        boolean isHave = false;
+
+        for(int i = 0; i < attendanceInfoArrayList.size(); i++) {
+            //判断是否已存在该id
+            if (attendanceInfoArrayList.get(i).getId().equals(id) ) {
+                attendanceInfoArrayList.get(i).addTime(Time);
+                Log.e(TAG, "已存在该id");
+                isHave = true;
+            }
+
+        }
+        if (!isHave) {
+            attendanceInfo attendanceInfo = new attendanceInfo(id, Time);
+            attendanceInfoArrayList.add(attendanceInfo);
+            Log.e(TAG, "添加新信息");
+        }
+        for (int i = 0; i < attendanceInfoArrayList.size(); i ++ ) {
+            Log.e(TAG, "new attendanceInfoArrayList" + attendanceInfoArrayList.get(i).getId()+":" + String.valueOf(attendanceInfoArrayList.get(i).getTime()));
+
+        }
+        SharedPreferences.Editor editor = getSharedPreferences("attendance", MODE_PRIVATE).edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(attendanceInfoArrayList);
+        Log.e(TAG, "list is "+ attendanceInfoArrayList);
+
+        Log.e(TAG, "saved json is "+ json);
+        editor.putString("handleJson", json);
+        editor.commit();
+
+    }
+
+    public void clearShareperference(Context context) {
+        SharedPreferences.Editor editor = context.getSharedPreferences("attendance", MODE_PRIVATE).edit();
+        Gson gson = new Gson();
+        String json = null;
+
+        Log.e(TAG, "saved json is "+ json);
+        editor.putString("handleJson", json);
+        editor.commit();
+    }
+
+    public List getAttendanceInfoArrayList(Context context) {
+        getSharedPreferences(context);
+        return attendanceInfoArrayList;
+    }
 }

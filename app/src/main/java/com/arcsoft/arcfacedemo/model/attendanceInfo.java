@@ -1,11 +1,12 @@
 package com.arcsoft.arcfacedemo.model;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class attendanceInfo {
     private String id;
-    private Date firstTime;
-    private Date secondTime;
+    private List<Date> Time = new ArrayList<>();
     private int status;
     private static final int normal = 1;
     private static final int late = 2;
@@ -13,10 +14,9 @@ public class attendanceInfo {
     private static final int Truancy = 4;
 
 
-    public attendanceInfo(String id, Date firstTime) {
+    public attendanceInfo(String id, Date Time) {
         this.id = id;
-        this.firstTime = firstTime;
-
+        this.Time.add(Time);
     }
 
     public String getId() {
@@ -27,21 +27,18 @@ public class attendanceInfo {
         this.id = id;
     }
 
-    public Date getFirstTime() {
-        return firstTime;
+    public List<Date> getTime() {
+        return Time;
     }
 
-    public void setFirstTime(Date firstTime) {
-        this.firstTime = firstTime;
+    public void addTime(Date time) {
+        for ( int i = 1; i < Time.size(); i++) {
+            Time.remove(Time.get(i));
+        }
+
+        Time.add(time);
     }
 
-    public Date getSecondTime() {
-        return secondTime;
-    }
-
-    public void setSecondTime(Date secondTime) {
-        this.secondTime = secondTime;
-    }
 
     public int getStatus() {
         return status;

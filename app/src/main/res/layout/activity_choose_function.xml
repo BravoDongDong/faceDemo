@@ -47,27 +47,6 @@
             android:layout_height="wrap_content"
             android:text="@string/active_engine" />
 
-        <Button
-            android:gravity="center"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="jumpToSingleImageActivity"
-            android:text="@string/page_single_image" />
-
-        <Button
-            android:gravity="center"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="jumpToPreviewActivity"
-            android:text="@string/page_preview" />
-
-        <Button
-            android:gravity="center"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="jumpToMultiImageActivity"
-            android:text="@string/page_multi_image" />
-
 
         <Button
             android:gravity="center"
@@ -76,12 +55,6 @@
             android:onClick="jumpToFaceRecognizeActivity"
             android:text="@string/face_recognize_mode" />
 
-        <Button
-            android:gravity="center"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="jumpToIrFaceRecognizeActivity"
-            android:text="@string/ir_face_recognize_mode" />
 
         <Button
             android:gravity="center"
@@ -89,6 +62,14 @@
             android:layout_height="wrap_content"
             android:onClick="jumpToBatchRegisterActivity"
             android:text="@string/face_manage" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:onClick="commit"
+            android:text="@string/commit" />
+
     </LinearLayout>
 
 </RelativeLayout>
