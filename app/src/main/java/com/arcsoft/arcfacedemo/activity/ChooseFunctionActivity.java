@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.textclassifier.TextLinks;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
@@ -31,6 +32,7 @@ import com.arcsoft.arcfacedemo.util.ConfigUtil;
 import com.arcsoft.face.ActiveFileInfo;
 import com.arcsoft.face.ErrorInfo;
 import com.arcsoft.face.FaceEngine;
+import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,12 +59,21 @@ public class ChooseFunctionActivity extends AppCompatActivity {
     private FaceEngine faceEngine = new FaceEngine();
     private SharedPreferences Countpreferences;
     private Button activeEngine ;
+    private ProgressBar help_center_loading_prgbar;
 
+    // TODO: 19-11-11 测试地址 
     private String urls = "https://www.baidu.com";
+    
+    private boolean isRequest = false;
     /**
      * 考勤信息list
      */
     private List<attendanceInfo> attendanceInfoArrayList = new ArrayList<attendanceInfo>();
+
+    /**
+     * 请求
+     * @param savedInstanceState
+     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +87,7 @@ public class ChooseFunctionActivity extends AppCompatActivity {
         Countpreferences = getSharedPreferences("count", MODE_PRIVATE);
         final int[] count = {Countpreferences.getInt("count", 0)};
         activeEngine = (Button) findViewById(R.id.activeEngine);
-
+        help_center_loading_prgbar = (ProgressBar) findViewById(R.id.help_center_loading_prgbar);
         //判断运行次数，不是初次启动隐藏激活引擎按钮
         if (count[0] != 0) {
             activeEngine.setVisibility(View.GONE);
@@ -191,6 +202,14 @@ public class ChooseFunctionActivity extends AppCompatActivity {
     }
 
     /**
+     * 当前考勤情况统计
+     * @param view
+     */
+    public void jumpToAttendanceSituationActivity(View view) {
+
+    }
+
+    /**
      * 打开相机，IR活体检测，人脸注册，人脸识别
      *
      * @param view
@@ -275,16 +294,28 @@ public class ChooseFunctionActivity extends AppCompatActivity {
      * @param view
      */
     public void commit(View view) {
+        //判断是否正在请求
+        if (isRequest) {
+            Toast.makeText(this, "正在请求中，请稍后", Toast.LENGTH_SHORT).show();
+            return;
+        } 
+
         attendanceInfoArrayList = RegisterAndRecognizeActivity.getInstance().getAttendanceInfoArrayList(getApplicationContext());
+
         if (attendanceInfoArrayList.isEmpty()) {
             Toast.makeText(this, "没有数据需要上传", Toast.LENGTH_SHORT).show();
             return;
         }
+        isRequest = true;
+        //help_center_loading_prgbar.clearAnimation();
+        help_center_loading_prgbar.setVisibility(View.VISIBLE);
         // TODO: 19-11-6 volley  新开辟线程提交数据给 webapi,并清空shareperence
 
+        Gson gson = new Gson();
+        String parseJson = gson.toJson(attendanceInfoArrayList);
         JSONObject params = new JSONObject();
         try {
-            params.put("msg", attendanceInfoArrayList);
+            params.put("msg", parseJson);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -294,20 +325,24 @@ public class ChooseFunctionActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(JSONObject response) {
-//                try {
-//                    Log.e(TAG, response.get("msg").toString());
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
+                Toast.makeText(ChooseFunctionActivity.this, "提交成功", Toast.LENGTH_SHORT).show();
                 Log.e(TAG, response.toString());
+                //拿到正确的返回结果才清空shareperference
+                RegisterAndRecognizeActivity.getInstance().clearShareperference(getApplicationContext());
+                isRequest = false;
+                help_center_loading_prgbar.setVisibility(View.INVISIBLE);
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                String errorMessage = error.getMessage();
+                Toast.makeText(ChooseFunctionActivity.this, "提交失败,请检查连接网络情况" + errorMessage, Toast.LENGTH_SHORT).show();
+                Log.e(TAG, errorMessage);
+                isRequest = false;
+                help_center_loading_prgbar.setVisibility(View.INVISIBLE);
 
             }
         }
-
         );
 
 
@@ -326,10 +361,9 @@ public class ChooseFunctionActivity extends AppCompatActivity {
         });
 
 
-        requestQueue.add(stringRequest);
+        requestQueue.add(jsonObjectRequest);
 
 
-        RegisterAndRecognizeActivity.getInstance().clearShareperference(getApplicationContext());
 
     }
 

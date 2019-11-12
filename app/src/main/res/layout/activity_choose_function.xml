@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity.ChooseFunctionActivity">
@@ -35,6 +36,7 @@
 <!--            android:layout_height="wrap_content" />-->
 <!--    </RadioGroup>-->
     <LinearLayout
+        android:id="@+id/buttonPanel"
         android:layout_centerInParent="true"
         android:layout_gravity="center"
         android:orientation="vertical"
@@ -55,6 +57,12 @@
             android:onClick="jumpToFaceRecognizeActivity"
             android:text="@string/face_recognize_mode" />
 
+        <Button
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="jumpToAttendanceSituationActivity"
+            android:text="考勤情况" />
 
         <Button
             android:gravity="center"
@@ -70,6 +78,25 @@
             android:onClick="commit"
             android:text="@string/commit" />
 
+
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/buttonPanel"
+        android:layout_centerHorizontal="true"
+        >
+
+        <ProgressBar
+            android:id="@+id/help_center_loading_prgbar"
+            style="@style/CustomProgressBar_Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:visibility="invisible" />
+
+    </LinearLayout>
+
+
 
 </RelativeLayout>

@@ -10,4 +10,12 @@
         <item name="android:windowFullscreen">true</item>
     </style>
 
+    <style name="CustomProgressBar_Small">
+        <item name="android:indeterminateDrawable">@drawable/progress_small_holo</item>
+        <item name="android:minWidth">37dip</item>
+        <item name="android:maxWidth">37dip</item>
+        <item name="android:minHeight">37dip</item>
+        <item name="android:maxHeight">37dip</item>
+    </style>
+
 </resources>

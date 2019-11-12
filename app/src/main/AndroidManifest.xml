@@ -15,6 +15,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".activity.AttendanceSituation"></activity>
         <activity
             android:name=".activity.PreviewActivity"
             android:launchMode="singleTop" />
@@ -27,24 +28,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activity.SingleImageActivity"
             android:configChanges="orientation|screenSize"
             android:launchMode="singleTop" />
-
         <activity
             android:name=".activity.MultiImageActivity"
             android:launchMode="singleTop" />
-
         <activity
             android:name=".activity.IrRegisterAndRecognizeActivity"
             android:launchMode="singleTop" />
-
         <activity
             android:name=".activity.RegisterAndRecognizeActivity"
             android:launchMode="singleTop" />
-
         <activity
             android:name=".activity.FaceManageActivity"
             android:launchMode="singleTop" />
@@ -58,7 +54,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-
     </application>
 
 </manifest>
