@@ -631,6 +631,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
 //                            handler.sendMessage(msg);
                             getSharedPreferences(getApplicationContext());
                             setSharedPreference(compareResult.getUserName(), new Date());
+                            Toast.makeText(RegisterAndRecognizeActivity.this, "考勤成功" + compareResult.getUserName(), Toast.LENGTH_SHORT).show();
 
                         } else {
                             requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
@@ -663,45 +664,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
         }
     }
 
-    /**
-     * 准备跳转到人脸库
-     *
-     * @param view 跳转按钮
-     */
-    public void jumpToAdmin(View view) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = LayoutInflater.from(this);
-        View v = inflater.inflate(R.layout.dialog_pwd,null);
-        final EditText pwd = v.findViewById(R.id.password);
-        builder.setView(v)
-                .setCancelable(true)
-                .setPositiveButton(R.string.sure, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //进行密码比对，成功后跳转到人脸库界面
-                        Toast.makeText(RegisterAndRecognizeActivity.this, pwd.getText(), Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent();
-                        intent.setClass(getApplicationContext(), FaceManageActivity.class);
-                        startActivity(intent);
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        //Log.e("test","onClick cancel");
-                        int[] data = new int[]{0, 10, 20};//用数值计算百分比，总和在饼图中间
-                        String[] name = new String[]{"弟", "妹", "侣"};//饼图分类项
-                        int[] color = new int[]{//饼图分类项颜色
-                                getResources().getColor(R.color.blue),
-                                getResources().getColor(R.color.colorPrimary),
-                                getResources().getColor(R.color.green)};
 
-                        pieView1.setData(data, name, color);
-
-                    }
-                }).create();
-        builder.show();
-    }
 
     /**
      * 在{@link #previewView}第一次布局完成后，去除该监听，并且进行引擎和相机的初始化
@@ -718,9 +681,11 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
     }
     // TODO: 19-11-5 每次保存前获取刷新考勤信息getSharedPreferences 判定是否已存在，状态信息，
     // TODO: 19-11-5  后续单独给出ｇｅｔ方法获取信息发送请求
+
     /**
      * 获取考勤缓存信息
      */
+
     public void getSharedPreferences(Context context) {
 
         attendancePreferences = context.getSharedPreferences("attendance", MODE_PRIVATE);
@@ -732,12 +697,13 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
             attendanceInfoArrayList = gson.fromJson(json, type);
             for(int i = 0; i < attendanceInfoArrayList.size(); i++)
             {
-                Log.e(TAG, "getSharepreference" + attendanceInfoArrayList.get(i).getId()+":" + String.valueOf(attendanceInfoArrayList.get(i).getTime()));
+                Log.e(TAG, "getSharepreference" + attendanceInfoArrayList.get(i).getId()+":" + String.valueOf(attendanceInfoArrayList.get(i).getFirstTime()));
             }
         } else {
             attendanceInfoArrayList = new ArrayList<>();
         }
     }
+
 
     public void setSharedPreference(String id, Date Time) {
 
@@ -746,7 +712,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
         for(int i = 0; i < attendanceInfoArrayList.size(); i++) {
             //判断是否已存在该id
             if (attendanceInfoArrayList.get(i).getId().equals(id) ) {
-                attendanceInfoArrayList.get(i).addTime(Time);
+                attendanceInfoArrayList.get(i).setEndTime(Time);
                 Log.e(TAG, "已存在该id");
                 isHave = true;
             }
@@ -758,7 +724,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
             Log.e(TAG, "添加新信息");
         }
         for (int i = 0; i < attendanceInfoArrayList.size(); i ++ ) {
-            Log.e(TAG, "new attendanceInfoArrayList" + attendanceInfoArrayList.get(i).getId()+":" + String.valueOf(attendanceInfoArrayList.get(i).getTime()));
+            Log.e(TAG, "new attendanceInfoArrayList" + attendanceInfoArrayList.get(i).getId()+":" + String.valueOf(attendanceInfoArrayList.get(i).getFirstTime()));
 
         }
         SharedPreferences.Editor editor = getSharedPreferences("attendance", MODE_PRIVATE).edit();

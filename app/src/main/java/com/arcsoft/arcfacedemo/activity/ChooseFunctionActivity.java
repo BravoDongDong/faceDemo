@@ -1,6 +1,7 @@
 package com.arcsoft.arcfacedemo.activity;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -8,11 +9,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.textclassifier.TextLinks;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -38,6 +42,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import io.reactivex.Observable;
@@ -61,9 +66,10 @@ public class ChooseFunctionActivity extends AppCompatActivity {
     private Button activeEngine ;
     private ProgressBar help_center_loading_prgbar;
 
-    // TODO: 19-11-11 测试地址 
-    private String urls = "https://www.baidu.com";
-    
+    private String urls = "http://127.0.0.1:54715/api/attendance/insert";
+    // TODO: 19-11-11 测试地址
+//    private String urls = "https://www.baidu.com";
+
     private boolean isRequest = false;
     /**
      * 考勤信息list
@@ -219,12 +225,42 @@ public class ChooseFunctionActivity extends AppCompatActivity {
     }
 
     /**
-     * 批量注册和删除功能
+     * 准备跳转到人脸库
      *
-     * @param view
+     * @param view 跳转按钮
      */
     public void jumpToBatchRegisterActivity(View view) {
-        startActivity(new Intent(this, FaceManageActivity.class));
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View v = inflater.inflate(R.layout.dialog_pwd,null);
+        final EditText pwd = v.findViewById(R.id.password);
+        builder.setView(v)
+                .setCancelable(true)
+                .setPositiveButton(R.string.sure, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //进行密码比对，成功后跳转到人脸库界面
+                        String test = pwd.getText().toString();
+                        if (pwd.getText().toString().equals("qbz95")) {
+                            Intent intent = new Intent();
+                            intent.setClass(getApplicationContext(), FaceManageActivity.class);
+                            startActivity(intent);
+                        } else {
+                            Toast.makeText(ChooseFunctionActivity.this, "密码错误", Toast.LENGTH_SHORT).show();
+
+                            return;
+                        }
+
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //Log.e("test","onClick cancel");
+
+                    }
+                }).create();
+        builder.show();
     }
 
     /**
@@ -298,7 +334,7 @@ public class ChooseFunctionActivity extends AppCompatActivity {
         if (isRequest) {
             Toast.makeText(this, "正在请求中，请稍后", Toast.LENGTH_SHORT).show();
             return;
-        } 
+        }
 
         attendanceInfoArrayList = RegisterAndRecognizeActivity.getInstance().getAttendanceInfoArrayList(getApplicationContext());
 
