@@ -20,7 +20,7 @@
    </FrameLayout>
 
     <com.don.pieviewlibrary.PercentPieView
-
+        android:visibility="gone"
         android:id="@+id/pieView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

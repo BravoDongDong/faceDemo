@@ -1,22 +1,22 @@
 package com.arcsoft.arcfacedemo.model;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.SimpleFormatter;
 
 public class attendanceInfo {
     private String id;
-    private List<Date> Time = new ArrayList<>();
-    private int status;
-    private static final int normal = 1;
-    private static final int late = 2;
-    private static final int LeaveEarly = 3;
-    private static final int Truancy = 4;
+    private String firstTime;
+    private String endTime;
+    private attendanceInfo attendanceInfo;
+
 
 
     public attendanceInfo(String id, Date Time) {
         this.id = id;
-        this.Time.add(Time);
+        this.firstTime = new SimpleDateFormat("yy-mm-dd HH:mm:ss").format(Time);
     }
 
     public String getId() {
@@ -27,24 +27,19 @@ public class attendanceInfo {
         this.id = id;
     }
 
-    public List<Date> getTime() {
-        return Time;
+    public String getFirstTime() {
+        return firstTime;
     }
 
-    public void addTime(Date time) {
-        for ( int i = 1; i < Time.size(); i++) {
-            Time.remove(Time.get(i));
-        }
-
-        Time.add(time);
+    public void setFirstTime(String firstTime) {
+        this.firstTime = firstTime;
     }
 
-
-    public int getStatus() {
-        return status;
+    public String getEndTime() {
+        return endTime;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
+    public void setEndTime(Date endTime) {
+        this.endTime = new SimpleDateFormat("yy-mm-dd HH:mm:ss").format(endTime);
     }
 }

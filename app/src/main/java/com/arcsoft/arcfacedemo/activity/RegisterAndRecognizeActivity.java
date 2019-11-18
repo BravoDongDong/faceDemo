@@ -10,6 +10,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.hardware.Camera;
+import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,12 +35,21 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.arcsoft.arcfacedemo.R;
 import com.arcsoft.arcfacedemo.common.Constants;
+import com.arcsoft.arcfacedemo.common.getIp;
 import com.arcsoft.arcfacedemo.faceserver.CompareResult;
 import com.arcsoft.arcfacedemo.faceserver.FaceServer;
 import com.arcsoft.arcfacedemo.model.DrawInfo;
 import com.arcsoft.arcfacedemo.model.FacePreviewInfo;
+import com.arcsoft.arcfacedemo.model.PersonAttendanceStatus;
 import com.arcsoft.arcfacedemo.model.attendanceInfo;
 import com.arcsoft.arcfacedemo.util.ConfigUtil;
 import com.arcsoft.arcfacedemo.util.DrawHelper;
@@ -62,7 +72,12 @@ import com.don.pieviewlibrary.AnimationPercentPieView;
 import com.don.pieviewlibrary.LinePieView;
 import com.don.pieviewlibrary.PercentPieView;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -150,6 +165,12 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
      */
 
     private SharedPreferences attendancePreferences;
+    private SharedPreferences firstOrSecondPreferences;
+    /**
+     * 请求队列
+     */
+    private RequestQueue requestQueue ;
+
 
     private List<attendanceInfo> attendanceInfoArrayList;
 
@@ -168,21 +189,6 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
 
     };
 
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-
-            switch ((String)msg.obj) {
-                case "1" :
-                    Bundle bundle = msg.getData();
-                    String id = bundle.getString("id");
-                    getSharedPreferences(getApplicationContext());
-                    setSharedPreference(id, new Date());
-
-            }
-        }
-    };
 
     public static RegisterAndRecognizeActivity getInstance() {
         if (registerAndRecognizeActivity == null) {
@@ -210,16 +216,13 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
         FaceServer.getInstance().init(this);
 
         initView();
+
+        requestQueue = Volley.newRequestQueue(RegisterAndRecognizeActivity.this);
     }
 
     private void initView() {
 
-        int[] data = new int[]{20, 20, 20};//用数值计算百分比，总和在饼图中间
-        String[] name = new String[]{"兄", "姐妹", "情侣"};//饼图分类项
-        int[] color = new int[]{//饼图分类项颜色
-                getResources().getColor(R.color.blue),
-                getResources().getColor(R.color.red),
-                getResources().getColor(R.color.purple)};
+
 
 //        pieView = (AnimationPercentPieView) findViewById(R.id.pieView3);
 //        //设置指定颜色
@@ -227,7 +230,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
 
         pieView1 = (PercentPieView) findViewById(R.id.pieView2);
         //设置指定颜色
-        pieView1.setData(data, name, color);
+
 
         previewView = findViewById(R.id.texture_preview);
         //在布局结束后才做初始化操作
@@ -250,6 +253,15 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
         int spanCount = (int) (dm.widthPixels / (getResources().getDisplayMetrics().density * 100 + 0.5f));
         recyclerShowFaceInfo.setLayoutManager(new GridLayoutManager(this, spanCount));
         recyclerShowFaceInfo.setItemAnimator(new DefaultItemAnimator());
+
+        //为ChooseFunctionActivity页面做文本更改，显得更流畅
+        firstOrSecondPreferences = getSharedPreferences("firstOrSecond", MODE_PRIVATE);
+        Boolean firstOrSecond = firstOrSecondPreferences.getBoolean("firstOrSecond", false);
+
+        if (firstOrSecond)
+            ChooseFunctionActivity.firstOrSecondButton.setText("课后考勤");
+        else
+            ChooseFunctionActivity.firstOrSecondButton.setText("课前考勤");
     }
 
     /**
@@ -283,6 +295,17 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
     @Override
     protected void onDestroy() {
 
+
+        //没啥用，原因见ChooseFunctionActivity onResume解释
+        firstOrSecondPreferences = getSharedPreferences("firstOrSecond", MODE_PRIVATE);
+        Boolean firstOrSecond = firstOrSecondPreferences.getBoolean("firstOrSecond", false);
+
+        SharedPreferences.Editor editor = firstOrSecondPreferences.edit();
+        //存入数据
+        editor.putBoolean("firstOrSecond", !firstOrSecond);
+        //提交修改
+        editor.commit();
+        Log.e(TAG, String.valueOf(!firstOrSecond));
         if (cameraHelper != null) {
             cameraHelper.release();
             cameraHelper = null;
@@ -304,6 +327,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
         }
         FaceServer.getInstance().unInit();
         super.onDestroy();
+
     }
 
     private boolean checkPermissions(String[] neededPermissions) {
@@ -629,9 +653,66 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
 //                            msg.setData(bundle);
 //                            msg.obj = "1";
 //                            handler.sendMessage(msg);
-                            getSharedPreferences(getApplicationContext());
-                            setSharedPreference(compareResult.getUserName(), new Date());
-                            Toast.makeText(RegisterAndRecognizeActivity.this, "考勤成功" + compareResult.getUserName(), Toast.LENGTH_SHORT).show();
+//                            getSharedPreferences(getApplicationContext());
+//                            setSharedPreference(compareResult.getUserName(), new Date());
+                            firstOrSecondPreferences = getSharedPreferences("firstOrSecond", MODE_PRIVATE);
+                            Boolean firstOrSecond = firstOrSecondPreferences.getBoolean("firstOrSecond", false);
+                            String id = compareResult.getUserName();
+                            String url;
+                            //判断运行单复数 true:first  false:second
+                            if (firstOrSecond) {
+                                url = getIp.ip + "/Values/FirstAttendance?id=" + id;
+
+                            } else {
+                                url = getIp.ip + "/Values/SecondAttendance?id=" + id;
+                            }
+
+
+                            StringRequest request = new StringRequest(url, new Response.Listener<String>() {
+
+                                @Override
+                                public void onResponse(String response) {
+                                    Log.e(TAG, response);
+                                    Toast.makeText(RegisterAndRecognizeActivity.this, "考勤成功", Toast.LENGTH_SHORT).show();
+
+                                }
+                            }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    Log.e(TAG, error.toString());
+                                    Toast.makeText(RegisterAndRecognizeActivity.this, "考勤请求失败,请检查连接网络情况", Toast.LENGTH_SHORT).show();
+                                }
+
+                            });
+                            url = getIp.ip + "/Values/PersonalStatus";
+                            Gson gson = new Gson();
+                            String parseJson = gson.toJson(attendanceInfoArrayList);
+                            JSONObject params = new JSONObject();
+                            try {
+                                params.put("id", id);
+                                params.put("range","");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, params, new Response.Listener<JSONObject>() {
+
+                                @Override
+                                public void onResponse(JSONObject response) {
+                                    Log.e(TAG, response.toString());
+
+                                }
+                            }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    String errorMessage = error.getMessage();
+                                    Toast.makeText(RegisterAndRecognizeActivity.this, "个人统计请求失败,请检查连接网络情况" + errorMessage, Toast.LENGTH_SHORT).show();
+                                    Log.e(TAG, errorMessage);
+                                }
+                            }
+                            );
+
+                            requestQueue.add(request);
+                            getPersonalStatus(id,30);
 
                         } else {
                             requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
@@ -652,6 +733,73 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
 
     }
 
+    private void getPersonalStatus(String id, int range) {
+
+
+        String url = getIp.ip + "/Values/PersonalStatus";
+        JSONObject params = new JSONObject();
+        try {
+            params.put("id", id);
+            params.put("range",range);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, params, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+
+                Log.e(TAG + "123", response.toString());
+                int[] data = new int[]{0, 0, 0, 0};//用数值计算百分比，总和在饼图中间
+                String[] name = new String[]{"旷课", "迟到", "早退", "正常"};//饼图分类项
+                int[] color = new int[]{//饼图分类项颜色
+                        getResources().getColor(R.color.red),
+                        getResources().getColor(R.color.colorPrimaryDark),
+                        getResources().getColor(R.color.blue),
+                        getResources().getColor(R.color.green)};
+                try {
+                    JSONArray jsonArray = response.getJSONArray("Table");
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        String finallyStatus = jsonObject.getString("finallyStatus");
+                        String num = jsonObject.getString("num");
+                        switch (finallyStatus) {
+                            case "0":
+                                data[0] = Integer.parseInt(num);
+                                break;
+                            case "1":
+                                data[1] = Integer.parseInt(num);
+                                break;
+                            case "2":
+                                data[2] = Integer.parseInt(num);
+                                break;
+                            case "3":
+                                data[3] = Integer.parseInt(num);
+                                break;
+                        }
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+//                {"Table":[{"finallyStatus":2,"数量":1},{"finallyStatus":3,"数量":1}]}
+                pieView1.setVisibility(View.VISIBLE);
+                pieView1.setData(data, name, color);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                String errorMessage = error.getMessage();
+
+                Toast.makeText(RegisterAndRecognizeActivity.this, "个人统计请求失败,请检查连接网络情况" + errorMessage, Toast.LENGTH_SHORT).show();
+
+            }
+        }
+        );
+
+
+
+        requestQueue.add(jsonObjectRequest);
+    }
 
     /**
      * 将准备注册的状态置为{@link #REGISTER_STATUS_READY}
@@ -752,4 +900,6 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
         getSharedPreferences(context);
         return attendanceInfoArrayList;
     }
+
+
 }
