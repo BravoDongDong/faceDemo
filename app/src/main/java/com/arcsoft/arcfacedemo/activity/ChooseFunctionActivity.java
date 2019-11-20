@@ -119,17 +119,17 @@ public class ChooseFunctionActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-//        firstOrSecondPreferences = getSharedPreferences("firstOrSecond", MODE_PRIVATE);
-//        Boolean firstOrSecond = firstOrSecondPreferences.getBoolean("firstOrSecond", false);
-//        firstOrSecondButton = (Button) findViewById(R.id.firstOrSecondButton);
-//        //判断运行单复数
-//        if (firstOrSecond) {
-//            firstOrSecondButton.setText("课前考勤");
-//
-//        } else {
-//            firstOrSecondButton.setText("课后考勤");
-//
-//        }
+        firstOrSecondPreferences = getSharedPreferences("firstOrSecond", MODE_PRIVATE);
+        Boolean firstOrSecond = firstOrSecondPreferences.getBoolean("firstOrSecond", false);
+        firstOrSecondButton = (Button) findViewById(R.id.firstOrSecondButton);
+        //判断运行单复数
+        if (firstOrSecond) {
+            firstOrSecondButton.setText("课前考勤");
+
+        } else {
+            firstOrSecondButton.setText("课后考勤");
+
+        }
 
     }
 
@@ -162,78 +162,10 @@ public class ChooseFunctionActivity extends AppCompatActivity {
         });
 
 
-        //设置视频模式下的人脸优先检测方向
-//        RadioGroup radioGroupFtOrient = findViewById(R.id.radio_group_ft_orient);
-//        RadioButton rbOrient0 = findViewById(R.id.rb_orient_0);
-//        RadioButton rbOrient90 = findViewById(R.id.rb_orient_90);
-//        RadioButton rbOrient180 = findViewById(R.id.rb_orient_180);
-//        RadioButton rbOrient270 = findViewById(R.id.rb_orient_270);
-//        RadioButton rbOrientAll = findViewById(R.id.rb_orient_all);
-//
-//        switch (ConfigUtil.getFtOrient(this)) {
-//            case FaceEngine.ASF_OP_0_ONLY:
-//                rbOrient0.setChecked(true);
-//                break;
-//            case FaceEngine.ASF_OP_90_ONLY:
-//                rbOrient90.setChecked(true);
-//                break;
-//            case FaceEngine.ASF_OP_180_ONLY:
-//                rbOrient180.setChecked(true);
-//                break;
-//            case FaceEngine.ASF_OP_270_ONLY:
-//                rbOrient270.setChecked(true);
-//                break;
-//            case FaceEngine.ASF_OP_0_HIGHER_EXT:
-//                rbOrientAll.setChecked(true);
-//                break;
-//            default:
-//                rbOrient0.setChecked(true);
-//                break;
-//        }
-//        radioGroupFtOrient.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(RadioGroup group, int checkedId) {
-//                switch (checkedId) {
-//                    case R.id.rb_orient_0:
-//                        ConfigUtil.setFtOrient(ChooseFunctionActivity.this, FaceEngine.ASF_OP_0_ONLY);
-//                        break;
-//                    case R.id.rb_orient_90:
-//                        ConfigUtil.setFtOrient(ChooseFunctionActivity.this, FaceEngine.ASF_OP_90_ONLY);
-//                        break;
-//                    case R.id.rb_orient_180:
-//                        ConfigUtil.setFtOrient(ChooseFunctionActivity.this, FaceEngine.ASF_OP_180_ONLY);
-//                        break;
-//                    case R.id.rb_orient_270:
-//                        ConfigUtil.setFtOrient(ChooseFunctionActivity.this, FaceEngine.ASF_OP_270_ONLY);
-//                        break;
-//                    case R.id.rb_orient_all:
-//                        ConfigUtil.setFtOrient(ChooseFunctionActivity.this, FaceEngine.ASF_OP_0_HIGHER_EXT);
-//                        break;
-//                    default:
-//                        ConfigUtil.setFtOrient(ChooseFunctionActivity.this, FaceEngine.ASF_OP_0_ONLY);
-//                        break;
-//                }
-//            }
-//        });
+
     }
 
-    /**
-     * 打开相机，显示年龄性别
-     *
-     * @param view
-     */
-    public void jumpToPreviewActivity(View view) {
-        startActivity(new Intent(this, PreviewActivity.class));
-    }
 
-    /**
-     * 处理单张图片，显示图片中所有人脸的信息，并且一一比对相似度
-     *
-     * @param view
-     */
-    public void jumpToSingleImageActivity(View view) {
-        startActivity(new Intent(this, SingleImageActivity.class));
-    }
 
 
 
@@ -255,14 +187,7 @@ public class ChooseFunctionActivity extends AppCompatActivity {
         startActivity(new Intent(this, AttendanceSituation.class));
     }
 
-    /**
-     * 打开相机，IR活体检测，人脸注册，人脸识别
-     *
-     * @param view
-     */
-    public void jumpToIrFaceRecognizeActivity(View view) {
-        startActivity(new Intent(this, IrRegisterAndRecognizeActivity.class));
-    }
+
 
     /**
      * 准备跳转到人脸库
