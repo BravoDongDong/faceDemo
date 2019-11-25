@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -20,7 +21,9 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.arcsoft.arcfacedemo.R;
 import com.arcsoft.arcfacedemo.common.getIp;
+
 import java.lang.String;
+
 import com.arcsoft.arcfacedemo.model.attendanceInfo;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -66,7 +69,7 @@ public class AttendanceSituation extends AppCompatActivity {
         getStudents();
     }
 
-    private  Handler handler = new Handler() {
+    private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -90,48 +93,49 @@ public class AttendanceSituation extends AppCompatActivity {
 
 
         StringRequest stringRequest = new StringRequest(getIp.ip + AttendancedStatistics, new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    // TODO: 19-11-11 两个数组解析到两个list中
+            @Override
+            public void onResponse(String response) {
+                // TODO: 19-11-11 两个数组解析到两个list中
 
 
 //                    JsonParser jsonParser = new JsonParser();
 //                    JsonArray jsonArray = new JsonArray();
-                    JSONObject myJsonObject = new JSONObject();
-                    try {
-                        myJsonObject = new JSONObject(response);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                   try {
-                        JSONArray jsonArray = myJsonObject.getJSONArray("Table");
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            String id = jsonObject.getString("id");
-                            attendancedId.add(id);
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    // TODO: 2019/11/17 string 转JSONObject 再解析
-//                    attendancedId = gson.fromJson(response, new TypeToken<List<String>>() {}.getType());
-                    //Toast.makeText(AttendanceSituation.this, "获取成功", Toast.LENGTH_SHORT).show();
-                    Message msg = new Message();
-                    msg.what = 1;
-                    handler.sendMessage(msg);
-
-                }}, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    String errorMessage = error.getMessage();
-                    Toast.makeText(AttendanceSituation.this, "获取失败,请检查连接网络情况" + errorMessage, Toast.LENGTH_SHORT).show();
-                    //Log.e(TAG, errorMessage);
-                    center_loading_prgbar.setVisibility(View.INVISIBLE);
-
+                JSONObject myJsonObject = new JSONObject();
+                try {
+                    myJsonObject = new JSONObject(response);
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
+
+                try {
+                    JSONArray jsonArray = myJsonObject.getJSONArray("Table");
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        String id = jsonObject.getString("id");
+                        attendancedId.add(id);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                // TODO: 2019/11/17 string 转JSONObject 再解析
+//                    attendancedId = gson.fromJson(response, new TypeToken<List<String>>() {}.getType());
+                //Toast.makeText(AttendanceSituation.this, "获取成功", Toast.LENGTH_SHORT).show();
+                Message msg = new Message();
+                msg.what = 1;
+                handler.sendMessage(msg);
+
             }
-            );
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                String errorMessage = error.getMessage();
+                Toast.makeText(AttendanceSituation.this, "获取失败,请检查连接网络情况" + errorMessage, Toast.LENGTH_SHORT).show();
+                //Log.e(TAG, errorMessage);
+                center_loading_prgbar.setVisibility(View.INVISIBLE);
+
+            }
+        }
+        );
 //        try {
 //            JSONArray jsonArray = response.getJSONArray("Table");
 //            for (int i = 0; i < jsonArray.length(); i++) {
@@ -159,47 +163,43 @@ public class AttendanceSituation extends AppCompatActivity {
 //        );
 
 
-
-
-
-
         StringRequest stringRequest1 = new StringRequest(getIp.ip + NoStatistics, new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    JSONObject myJsonObject = new JSONObject();
-                    try {
-                        myJsonObject = new JSONObject(response);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                    try {
-                        JSONArray jsonArray = myJsonObject.getJSONArray("Table");
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            String id = jsonObject.getString("id");
-                            studentsId.add(id);
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    //Toast.makeText(AttendanceSituation.this, "获取成功", Toast.LENGTH_SHORT).show();
-                    Message msg = new Message();
-                    msg.what = 2;
-                    handler.sendMessage(msg);
-
+            @Override
+            public void onResponse(String response) {
+                JSONObject myJsonObject = new JSONObject();
+                try {
+                    myJsonObject = new JSONObject(response);
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    String errorMessage = error.getMessage();
-                    Toast.makeText(AttendanceSituation.this, "提交失败,请检查连接网络情况" + errorMessage, Toast.LENGTH_SHORT).show();
-                    Log.e(TAG, errorMessage);
-                    center_loading_prgbar.setVisibility(View.INVISIBLE);
 
+                try {
+                    JSONArray jsonArray = myJsonObject.getJSONArray("Table");
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        String id = jsonObject.getString("id");
+                        studentsId.add(id);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
+                //Toast.makeText(AttendanceSituation.this, "获取成功", Toast.LENGTH_SHORT).show();
+                Message msg = new Message();
+                msg.what = 2;
+                handler.sendMessage(msg);
+
             }
-            );
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                String errorMessage = error.getMessage();
+                Toast.makeText(AttendanceSituation.this, "提交失败,请检查连接网络情况" + errorMessage, Toast.LENGTH_SHORT).show();
+                Log.e(TAG, errorMessage);
+                center_loading_prgbar.setVisibility(View.INVISIBLE);
+
+            }
+        }
+        );
 
         requestQueue.add(stringRequest);
         requestQueue.add(stringRequest1);
@@ -217,7 +217,7 @@ public class AttendanceSituation extends AppCompatActivity {
         }
 
         if (attendancedOrStudent) {
-            ArrayAdapter= new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, IdList);
+            ArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, IdList);
             attendanceList.setAdapter(ArrayAdapter);
 
         } else {

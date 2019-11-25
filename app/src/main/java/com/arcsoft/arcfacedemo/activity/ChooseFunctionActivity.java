@@ -180,11 +180,11 @@ public class ChooseFunctionActivity extends AppCompatActivity {
     }
 
     /**
-     * 当前考勤情况统计
+     * 考勤情况统计
      * @param view
      */
     public void jumpToAttendanceSituationActivity(View view) {
-        startActivity(new Intent(this, AttendanceSituation.class));
+        startActivity(new Intent(this, StackView.class));
     }
 
 

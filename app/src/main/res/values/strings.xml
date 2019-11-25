@@ -24,7 +24,7 @@
     <string name="face_manage">人脸批量注册管理</string>
     <string name="commit">提交</string>
     <string name="batch_register">批量注册</string>
-    <string name="notification_register">请将需要注册的图片放在\nsdcard/arcfacedemo/register\n目录下</string>
+    <string name="notification_register">请将需要注册的图片放在\n内部存储设备/arcfacedemo/register\n目录下</string>
     <string name="registering_please_wait">注册中，请稍等</string>
     <string name="clear_faces">清空人脸库</string>
     <string name="no_face_need_to_delete">无人脸需要删除</string>
@@ -41,8 +41,6 @@
     <string name="camera_rgb">RGB CAMERA</string>
     <string name="camera_ir">IR CAMERA</string>
     <string name="camera_error_notice">\n可能的原因：该设备不支持同时打开两个摄像头</string>
-    <string name="draw_ir_rect_mirror_horizontal">IR人脸框水平镜像绘制</string>
-    <string name="draw_ir_rect_mirror_vertical">IR人脸框垂直镜像绘制</string>
     <string name="Face_Database">人脸库</string>
     <string name="password">密码</string>
 

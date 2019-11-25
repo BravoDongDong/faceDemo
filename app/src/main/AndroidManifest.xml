@@ -31,19 +31,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.SingleImageActivity"
-            android:configChanges="orientation|screenSize"
-            android:launchMode="singleTop" />
-        <activity
-            android:name=".activity.IrRegisterAndRecognizeActivity"
-            android:launchMode="singleTop" />
-        <activity
             android:name=".activity.RegisterAndRecognizeActivity"
             android:launchMode="singleTop" />
         <activity
             android:name=".activity.FaceManageActivity"
             android:launchMode="singleTop" />
+        <activity
+            android:name=".activity.StackView"
+            android:launchMode="singleTop"
 
+            />
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="${applicationId}.provider"

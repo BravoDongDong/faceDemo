@@ -5,10 +5,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity.FaceManageActivity">
+
+
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+        <com.openxu.cview.TitleLayout
+        android:id="@+id/title_layout"
+        style="@style/TitleDefStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:iconBack="@mipmap/btn_back"
+        app:textcenter="@string/Face_Database"/>
         <TextView
             android:layout_margin="50dp"
             android:layout_gravity="center_horizontal"

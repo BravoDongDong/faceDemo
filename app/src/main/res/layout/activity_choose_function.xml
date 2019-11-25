@@ -23,9 +23,9 @@
 
         <Button
             android:id="@+id/firstOrSecondButton"
-            android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:onClick="jumpToFaceRecognizeActivity"
             android:text="@string/face_first_attendance" />
 
@@ -41,7 +41,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="jumpToBatchRegisterActivity"
-            android:text="@string/face_manage" />
+            android:text="@string/Face_Database" />
 
         <Button
             android:visibility="gone"
