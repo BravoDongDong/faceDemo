@@ -5,36 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity.ChooseFunctionActivity">
-<!--    <RadioGroup-->
-<!--        android:id="@+id/radio_group_ft_orient"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content">-->
-<!--        <RadioButton-->
-<!--            android:text="@string/ft_op_0"-->
-<!--            android:id="@+id/rb_orient_0"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content" />-->
-<!--        <RadioButton-->
-<!--            android:text="@string/ft_op_90"-->
-<!--            android:id="@+id/rb_orient_90"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content" />-->
-<!--        <RadioButton-->
-<!--            android:text="@string/ft_op_180"-->
-<!--            android:id="@+id/rb_orient_180"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content" />-->
-<!--        <RadioButton-->
-<!--            android:text="@string/ft_op_270"-->
-<!--            android:id="@+id/rb_orient_270"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content" />-->
-<!--        <RadioButton-->
-<!--            android:text="@string/ft_op_all"-->
-<!--            android:id="@+id/rb_orient_all"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content" />-->
-<!--    </RadioGroup>-->
+
     <LinearLayout
         android:id="@+id/buttonPanel"
         android:layout_centerInParent="true"
@@ -73,6 +44,7 @@
             android:text="@string/face_manage" />
 
         <Button
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"

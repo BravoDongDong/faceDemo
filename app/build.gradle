@@ -10,6 +10,12 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.current()
+        targetCompatibility JavaVersion.current()
+    }
+
+
     buildTypes {
         release {
             minifyEnabled false
@@ -27,6 +33,7 @@ android {
 dependencies {
 //    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 //    implementation 'com.alibaba:fastjson:1.1.71.android'
+    implementation 'com.openxu.viewlib:OXViewLib:1.0.2'
     implementation 'com.android.volley:volley:1.1.1'
     implementation 'com.google.code.gson:gson:2.7'
     implementation 'com.zhijieeeeee:pieviewlibrary:2.0.3'

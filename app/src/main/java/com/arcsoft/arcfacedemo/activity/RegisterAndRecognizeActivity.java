@@ -32,6 +32,8 @@ import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -154,6 +156,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
      */
     private AnimationPercentPieView pieView;
     private PercentPieView pieView1;
+    private LinearLayout SelectByTime;
 
     private Switch switchLivenessDetect;
 
@@ -173,6 +176,8 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
 
 
     private List<attendanceInfo> attendanceInfoArrayList;
+
+    private String id;
 
     /**
      * 考勤信息
@@ -218,6 +223,31 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
         initView();
 
         requestQueue = Volley.newRequestQueue(RegisterAndRecognizeActivity.this);
+
+        //没啥用，原因见ChooseFunctionActivity onResume解释
+        //重新更改位置
+        firstOrSecondPreferences = getSharedPreferences("firstOrSecond", MODE_PRIVATE);
+        Boolean firstOrSecond = firstOrSecondPreferences.getBoolean("firstOrSecond", false);
+
+        SharedPreferences.Editor editor = firstOrSecondPreferences.edit();
+        //存入数据
+        editor.putBoolean("firstOrSecond", !firstOrSecond);
+        //提交修改
+        editor.commit();
+        Log.e(TAG, String.valueOf(!firstOrSecond));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //为ChooseFunctionActivity页面做文本更改，显得更流畅
+        firstOrSecondPreferences = getSharedPreferences("firstOrSecond", MODE_PRIVATE);
+        Boolean firstOrSecond = firstOrSecondPreferences.getBoolean("firstOrSecond", false);
+
+        if (firstOrSecond)
+            ChooseFunctionActivity.firstOrSecondButton.setText("课后考勤");
+        else
+            ChooseFunctionActivity.firstOrSecondButton.setText("课前考勤");
     }
 
     private void initView() {
@@ -229,6 +259,8 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
 //        pieView.setData(data, name, color);
 
         pieView1 = (PercentPieView) findViewById(R.id.pieView2);
+        SelectByTime = (LinearLayout) findViewById(R.id.SelectByTime);
+        SelectByTime.bringToFront();
         //设置指定颜色
 
 
@@ -254,14 +286,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
         recyclerShowFaceInfo.setLayoutManager(new GridLayoutManager(this, spanCount));
         recyclerShowFaceInfo.setItemAnimator(new DefaultItemAnimator());
 
-        //为ChooseFunctionActivity页面做文本更改，显得更流畅
-        firstOrSecondPreferences = getSharedPreferences("firstOrSecond", MODE_PRIVATE);
-        Boolean firstOrSecond = firstOrSecondPreferences.getBoolean("firstOrSecond", false);
 
-        if (firstOrSecond)
-            ChooseFunctionActivity.firstOrSecondButton.setText("课后考勤");
-        else
-            ChooseFunctionActivity.firstOrSecondButton.setText("课前考勤");
     }
 
     /**
@@ -295,17 +320,6 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
     @Override
     protected void onDestroy() {
 
-
-        //没啥用，原因见ChooseFunctionActivity onResume解释
-        firstOrSecondPreferences = getSharedPreferences("firstOrSecond", MODE_PRIVATE);
-        Boolean firstOrSecond = firstOrSecondPreferences.getBoolean("firstOrSecond", false);
-
-        SharedPreferences.Editor editor = firstOrSecondPreferences.edit();
-        //存入数据
-        editor.putBoolean("firstOrSecond", !firstOrSecond);
-        //提交修改
-        editor.commit();
-        Log.e(TAG, String.valueOf(!firstOrSecond));
         if (cameraHelper != null) {
             cameraHelper.release();
             cameraHelper = null;
@@ -552,6 +566,9 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
      * @param facePreviewInfoList 人脸和trackId列表
      */
     private void clearLeftFace(List<FacePreviewInfo> facePreviewInfoList) {
+//        pieView1.setVisibility(View.VISIBLE);
+//        SelectByTime.setVisibility(View.GONE);
+
         Set<Integer> keySet = requestFeatureStatusMap.keySet();
         if (compareResultList != null) {
             for (int i = compareResultList.size() - 1; i >= 0; i--) {
@@ -657,7 +674,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
 //                            setSharedPreference(compareResult.getUserName(), new Date());
                             firstOrSecondPreferences = getSharedPreferences("firstOrSecond", MODE_PRIVATE);
                             Boolean firstOrSecond = firstOrSecondPreferences.getBoolean("firstOrSecond", false);
-                            String id = compareResult.getUserName();
+                            id = compareResult.getUserName();
                             String url;
                             //判断运行单复数 true:first  false:second
                             if (firstOrSecond) {
@@ -733,6 +750,18 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
 
     }
 
+    public void OneMonth(View view) {
+        getPersonalStatus( id, 30);
+    }
+
+    public void SixMonth(View view) {
+        getPersonalStatus( id, 180);
+    }
+
+    public void OneYear(View view) {
+        getPersonalStatus( id, 365);
+    }
+
     private void getPersonalStatus(String id, int range) {
 
 
@@ -782,8 +811,10 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
                     e.printStackTrace();
                 }
 //                {"Table":[{"finallyStatus":2,"数量":1},{"finallyStatus":3,"数量":1}]}
-                pieView1.setVisibility(View.VISIBLE);
+
                 pieView1.setData(data, name, color);
+                pieView1.setVisibility(View.VISIBLE);
+                SelectByTime.setVisibility(View.VISIBLE);
             }
         }, new Response.ErrorListener() {
             @Override
