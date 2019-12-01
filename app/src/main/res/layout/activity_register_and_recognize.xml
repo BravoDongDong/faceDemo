@@ -17,60 +17,25 @@
            android:id="@+id/face_rect_view"
            android:layout_width="match_parent"
            android:layout_height="match_parent" />
-       <LinearLayout
 
-           android:id="@+id/SelectByTime"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:layout_gravity="right|center"
-           android:focusableInTouchMode="true"
-           android:focusable="true"
-           android:orientation="vertical">
-
-           <Button
-               android:id="@+id/OneMonth"
-
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:clickable="true"
-               android:onClick="OneMonth"
-               android:text="30天" />
-
-           <Button
-               android:id="@+id/SixMonth"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:clickable="true"
-               android:onClick="SixMonth"
-               android:text="半年" />
-
-           <Button
-               android:id="@+id/OneYear"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:clickable="true"
-               android:onClick="OneYear"
-               android:text="一年" />
-
-       </LinearLayout>
 
    </FrameLayout>
 
 
-    <com.don.pieviewlibrary.PercentPieView
-        android:id="@+id/pieView2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clickable="false" />
+    <!--<com.don.pieviewlibrary.PercentPieView-->
+        <!--android:id="@+id/pieView2"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:clickable="false" />-->
 
 
 
 
-    <com.don.pieviewlibrary.AnimationPercentPieView
-        android:visibility="gone"
-        android:id="@+id/pieView3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+    <!--<com.don.pieviewlibrary.AnimationPercentPieView-->
+        <!--android:visibility="gone"-->
+        <!--android:id="@+id/pieView3"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content" />-->
     <Switch
         android:visibility="gone"
         android:id="@+id/switch_liveness_detect"

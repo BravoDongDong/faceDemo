@@ -258,9 +258,9 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
 //        //设置指定颜色
 //        pieView.setData(data, name, color);
 
-        pieView1 = (PercentPieView) findViewById(R.id.pieView2);
-        SelectByTime = (LinearLayout) findViewById(R.id.SelectByTime);
-        SelectByTime.bringToFront();
+//        pieView1 = (PercentPieView) findViewById(R.id.pieView2);
+//        SelectByTime = (LinearLayout) findViewById(R.id.SelectByTime);
+//        SelectByTime.bringToFront();
         //设置指定颜色
 
 

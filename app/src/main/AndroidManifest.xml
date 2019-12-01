@@ -51,7 +51,6 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity android:name=".activity.BarSitutation"></activity>
     </application>
 
 </manifest>
