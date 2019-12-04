@@ -26,6 +26,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +99,7 @@ public class StackView extends AppCompatActivity {
             "}";
 
     List<String> strXList;
-    List<List<BarBean>> dataList;
+    List<List<BarBean>>dataList;
     private BarHorizontalChart chart;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,18 +118,9 @@ public class StackView extends AppCompatActivity {
         //柱状图数据
         dataList = new ArrayList<>();
         // TODO: 19-11-25 更改为接口解析后数据，填充数据
-        for(int i = 0; i<10; i++){
-            //此集合为柱状图上一条数据，集合中包含几个实体就是几个柱子
-            List<BarBean> list = new ArrayList<>();
-            list.add(new BarBean(1, "lable1"));
-            list.add(new BarBean(2, "lable2"));
-            list.add(new BarBean(3, "lable3"));
-            list.add(new BarBean(100, "lable4"));
-            dataList.add(list);
-            strXList.add((i+1)+"");
-        }
-        chart.setLoading(false);
-        chart.setData(dataList, strXList);
+        dataList.clear();
+        strXList.clear();
+        GetStatus(30);
 
     }
 
@@ -134,19 +128,19 @@ public class StackView extends AppCompatActivity {
         dataList.clear();
         strXList.clear();
         GetStatus(30);
-        setStack();
+
     }
     public void SelectHalfOfYear(View view){
         dataList.clear();
         strXList.clear();
         GetStatus(30 * 6);
-        setStack();
+
     }
     public void SelectOneYear(View view){
         dataList.clear();
         strXList.clear();
         GetStatus(30 * 12);
-        setStack();
+
     }
 
     private void GetStatus(int range) {
@@ -166,16 +160,20 @@ public class StackView extends AppCompatActivity {
                     JSONArray jsonArray = myJsonObject.getJSONArray("Table");
                      for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject jsonObject = jsonArray.getJSONObject(i);
-                        String id = jsonObject.getString("id");
+                        int id = Integer.parseInt(jsonObject.getString("id").trim());
                         int finallyStatus = jsonObject.getInt("finallyStatus");
                         int num = jsonObject.getInt("num");
+                        List AttendancedStatus = new ArrayList<PersonalStutasInfo>();
                         AttendancedStatus.clear();
 // TODO: 2019/12/1 list map model 转换问题， 改变成JSONobject 存储数据
 
                         PersonalStutasInfo personalStutasInfo = new PersonalStutasInfo(finallyStatus, num);
                         if (map.containsKey(id)) {
                             ArrayList<PersonalStutasInfo> a = (ArrayList<PersonalStutasInfo>) map.get(id);
-                            AttendancedStatus.add(a);
+                            for (int b=0; b<a.size(); b++) {
+                                AttendancedStatus.add(a.get(b));
+                            }
+
                             AttendancedStatus.add(personalStutasInfo);
                         } else {
                             AttendancedStatus.add(personalStutasInfo);
@@ -191,6 +189,7 @@ public class StackView extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                setStack();
                 //Toast.makeText(AttendanceSituation.this, "获取成功", Toast.LENGTH_SHORT).show();
 
             }
@@ -212,11 +211,13 @@ public class StackView extends AppCompatActivity {
         dataList.clear();
         strXList.clear();
         int Absences = 0,  EarlyLeave = 0,  Late = 0,  normal = 0;
-        for (Object key : map.keySet()) {
+        Object[] keys = map.keySet().toArray();
+        Arrays.sort(keys);
+        for (Object key : keys) {
 
             ArrayList<PersonalStutasInfo> AttendancedList = (ArrayList<PersonalStutasInfo>)map.get(key);
             for (int i=0; i < AttendancedList.size(); i++) {
-                switch (AttendancedList.get(i).getFinallyStatus()) {
+                switch (((PersonalStutasInfo)AttendancedList.get(i)).getFinallyStatus()) {
                     case 0:
                         Absences = AttendancedList.get(i).getNum();
                         break;
@@ -240,7 +241,10 @@ public class StackView extends AppCompatActivity {
             dataList.add(list);
             strXList.add(key+"");
 
+
         }
+        chart.setLoading(false);
+        chart.setData(dataList, strXList);
         map.clear();
 
 //        for(int i = 0; i<map.size(); i++){
