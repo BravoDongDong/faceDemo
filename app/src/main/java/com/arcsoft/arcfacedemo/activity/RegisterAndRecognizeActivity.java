@@ -778,43 +778,43 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
             public void onResponse(JSONObject response) {
 
                 Log.e(TAG + "123", response.toString());
-                int[] data = new int[]{0, 0, 0, 0};//用数值计算百分比，总和在饼图中间
-                String[] name = new String[]{"旷课", "迟到", "早退", "正常"};//饼图分类项
-                int[] color = new int[]{//饼图分类项颜色
-                        getResources().getColor(R.color.red),
-                        getResources().getColor(R.color.colorPrimaryDark),
-                        getResources().getColor(R.color.blue),
-                        getResources().getColor(R.color.green)};
-                try {
-                    JSONArray jsonArray = response.getJSONArray("Table");
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject jsonObject = jsonArray.getJSONObject(i);
-                        String finallyStatus = jsonObject.getString("finallyStatus");
-                        String num = jsonObject.getString("num");
-                        switch (finallyStatus) {
-                            case "0":
-                                data[0] = Integer.parseInt(num);
-                                break;
-                            case "1":
-                                data[1] = Integer.parseInt(num);
-                                break;
-                            case "2":
-                                data[2] = Integer.parseInt(num);
-                                break;
-                            case "3":
-                                data[3] = Integer.parseInt(num);
-                                break;
-                        }
-
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+//                int[] data = new int[]{0, 0, 0, 0};//用数值计算百分比，总和在饼图中间
+//                String[] name = new String[]{"旷课", "迟到", "早退", "正常"};//饼图分类项
+//                int[] color = new int[]{//饼图分类项颜色
+//                        getResources().getColor(R.color.red),
+//                        getResources().getColor(R.color.colorPrimaryDark),
+//                        getResources().getColor(R.color.blue),
+//                        getResources().getColor(R.color.green)};
+//                try {
+//                    JSONArray jsonArray = response.getJSONArray("Table");
+//                    for (int i = 0; i < jsonArray.length(); i++) {
+//                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+//                        String finallyStatus = jsonObject.getString("finallyStatus");
+//                        String num = jsonObject.getString("num");
+//                        switch (finallyStatus) {
+//                            case "0":
+//                                data[0] = Integer.parseInt(num);
+//                                break;
+//                            case "1":
+//                                data[1] = Integer.parseInt(num);
+//                                break;
+//                            case "2":
+//                                data[2] = Integer.parseInt(num);
+//                                break;
+//                            case "3":
+//                                data[3] = Integer.parseInt(num);
+//                                break;
+//                        }
+//
+//                    }
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
 //                {"Table":[{"finallyStatus":2,"数量":1},{"finallyStatus":3,"数量":1}]}
 
-                pieView1.setData(data, name, color);
-                pieView1.setVisibility(View.VISIBLE);
-                SelectByTime.setVisibility(View.VISIBLE);
+//                pieView1.setData(data, name, color);
+//                pieView1.setVisibility(View.VISIBLE);
+//                SelectByTime.setVisibility(View.VISIBLE);
             }
         }, new Response.ErrorListener() {
             @Override
